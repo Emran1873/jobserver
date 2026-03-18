@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   try {
-    const CHANNEL = "freelance_ethio";
+    const CHANNEL = "freelance_ethio"; //name
 
     const url = https://t.me/s/${CHANNEL}?embed=1&mode=tme;
 
