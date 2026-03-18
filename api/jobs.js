@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   try {
-    const CHANNEL = "freelance_ethio"; // e.g. "ethiopianjobs"
+    const CHANNEL = "channel_username_here";
 
     const url = https://t.me/s/${CHANNEL}?embed=1&mode=tme;
 
@@ -10,30 +10,29 @@ export default async function handler(req, res) {
       },
     });
 
+    if (!response.ok) {
+      return res.status(500).json({
+        error: "Failed to fetch Telegram page",
+        status: response.status,
+      });
+    }
+
     const html = await response.text();
 
-    // 🧠 Extract message blocks
-    const messageMatches = [
-      ...html.matchAll(/<div class="tgme_widget_message_text[^>]*>(.*?)<\/div>/gs),
-    ];
+    // safer regex
+    const matches = html.match(/tgme_widget_message_text[\s\S]*?<\/div>/g) || [];
 
-    const jobs = messageMatches.map((match, index) => {
-      let raw = match[1];
-
-      // Remove HTML tags
-      let text = raw.replace(/<[^>]+>/g, "");
-
-      // Clean text
-      text = text
+    const jobs = matches.map((block, index) => {
+      let text = block
+        .replace(/<[^>]+>/g, "")
         .replace(/\n+/g, "\n")
         .replace(/&nbsp;/g, " ")
         .trim();
 
-      // Basic parsing (you can improve later)
       const lines = text.split("\n");
 
       return {
-        id: ${index},
+        id: String(index),
         title: lines[0] || "Job post",
         company: "Telegram Channel",
         salary: "Not specified",
@@ -55,7 +54,7 @@ export default async function handler(req, res) {
 
   } catch (err) {
     return res.status(500).json({
-      error: "Scraping failed",
+      error: "Crash",
       message: err.message,
     });
   }
